@@ -18,7 +18,7 @@ jobs:
       - name: Ping the server and log the uptime
         run: |
           now=$(date -Iseconds)
-          curl -s -o /dev/null -w "%{http_code}" http://google.com
+          curl -s -o /dev/null -w "%{http_code}" http://18f.gsa.gov
           stat=$?
           [ $stat -eq 0 ] && echo "$now up" >> log.txt || echo "$now dn" >> log.txt
           tail -n 65 log.txt > readlog.txt

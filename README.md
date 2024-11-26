@@ -1,2 +1,32 @@
-# downtime
+# Downtime
 Extremely simple, static, server-free uptime monitoring.
+
+[View the demo site.](https://18f.github.io/downtime/)
+
+## What problem does this solve?
+
+This monitors the uptime/downtime status of a single website, without:
+
+- needing an [ATO](https://digital.gov/resources/an-introduction-to-ato/)
+- procuring and setting up a commercial monitoring solution
+- hosting a server
+- running a database
+
+
+## How does it work?
+
+This monitors a single site and records the uptime/downtime in a log. It displays the last 65 events, showing the uptime/downtime in a simple chart.
+
+Process:
+
+- Every fifteen minutes, a scheduled GitHub Action checks the status of the website.
+- It records the status in a log, `log.txt`. The log is append-only, so we can track uptime over all time.
+- It copies the last 65 events to a separate log, `readlog.txt`. Instead of reading a log with potentially thousands of entries, we only load the smaller set of entries in `readlog.txt` for display.
+- The scheduled GitHub action commits these changes, saving the data, using these files as the data source.
+- Each commit, GitHub redeploys the GitHub Pages page with the new data.
+
+
+## The next few tasks
+
+- Record server errors and 404s as downtime. Right now, it's only recording a failure if the `curl` command fails.
+- Check for accessibility / 508 compliance
