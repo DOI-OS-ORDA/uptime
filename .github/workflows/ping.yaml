@@ -17,7 +17,7 @@ jobs:
       # Add your job steps here
       - name: Ping the server and log the uptime
         run: |
-          now=$(date -Iseconds)
+          now=$(TZ=US/Eastern date -Iseconds)
           curl -s -o /dev/null -w "%{http_code}" http://18f.gsa.gov
           stat=$?
           [ $stat -eq 0 ] && echo "$now up" >> log.txt || echo "$now dn" >> log.txt

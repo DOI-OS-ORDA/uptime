@@ -119,7 +119,14 @@
   const addBar = (line) => {
     if (line === "") { return false }
     const status = line.match(/(up|dn)$/)[0]
-    const timestamp = line.slice(0, -3)
+    const timestamp = new Date(line.slice(0, -3)).toLocaleString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    })
     return createBar(status, timestamp)
   }
 
