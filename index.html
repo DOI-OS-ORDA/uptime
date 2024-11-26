@@ -15,19 +15,14 @@
     font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
   }
 
-  #monitor {
+  #monitor, .monitor-part {
     display: inline-block;
     width: 100%;
   }
 
-  #status-bars {
-    display: inline-block;
-    width: 100%;
-  }
+  #status-bars {  }
 
   #underline {
-    display: inline-block;
-    width: 100%;
     color: #555;
   }
 
@@ -94,14 +89,13 @@
 
 
 <div id="monitor">
-  <div id="status-bars">
-
+  <div id="status-bars" class="monitor-part">
   </div>
-  <div id="underline">
-    <div id="before">
+  <div id="underline" class="monitor-part">
+    <div id="before" class="time">
       ~ 4 hours ago
     </div>
-    <div id="now">
+    <div id="now" class="time">
       now
     </div>
   </div>
