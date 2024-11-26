@@ -21,7 +21,7 @@ jobs:
           curl -s -o /dev/null -w "%{http_code}" http://google.com
           stat=$?
           [ $stat -eq 0 ] && echo "$now up" >> log.txt || echo "$now dn" >> log.txt
-          tail -n 65 > readlog.txt
+          tail -n 65 log.txt > readlog.txt
 
       - uses: EndBug/add-and-commit@v9
         with:
