@@ -1,5 +1,7 @@
 # Downtime
-Extremely simple, static, server-free uptime monitoring.
+Extremely simple, static, server-free uptime monitoring. No procurement or ATO needed*.
+
+\*Statements about ATO not yet verified.
 
 [View the demo site.](https://18f.github.io/downtime/)
 
