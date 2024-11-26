@@ -1,0 +1,30 @@
+name: Check server status
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Run every 15 minutes
+  workflow_dispatch:
+
+
+jobs:
+  cron_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Add your job steps here
+      - name: Ping the server and log the uptime
+        run: |
+          now=$(date -Iseconds)
+          curl -s -o /dev/null -w "%{http_code}" http://google.com
+          stat=$?
+          [ $stat -eq 0 ] && echo "$now up" >> log.txt || echo "$now dn" >> log.txt
+          tail -n 65 > readlog.txt
+
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: Show GitHub Actions logo
+          committer_name: GitHub Actions
+          committer_email: actions@github.com

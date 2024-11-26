@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+  <title>Uptime</title>
+
+</head>
+<body>
+
+<style>
+
+  body {
+    font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
+  }
+
+  #monitor {
+    display: inline-block;
+    width: 100%;
+  }
+
+  #status-bars {
+    display: inline-block;
+    width: 100%;
+  }
+
+  #underline {
+    display: inline-block;
+    width: 100%;
+    color: #555;
+  }
+
+  #before { float: left; }
+
+  #now { float: right; }
+
+  .bar {
+    font-weight: 720;
+    display: inline-block;
+    float: left;
+    font-size: 3rem;
+  }
+
+  .up {
+    color: #21c834 /* USWDS green-cool-30v */
+  }
+
+  .dn {
+    color: #e9695f; /* USWDS red-40 */
+  }
+
+  .missing {
+    color: #919191 /* USWDS gray-40 */
+  }
+
+  *[data-tooltip] {
+    position: relative;
+  }
+
+  *[data-tooltip]::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    top: -20px;
+    right: -150px;
+    width: 300px;
+
+    pointer-events: none;
+    opacity: 0;
+    -webkit-transition: opacity .05s ease-in-out;
+    -moz-transition: opacity .05s ease-in-out;
+    -ms-transition: opacity .05s ease-in-out;
+    -o-transition: opacity .05s ease-in-out;
+    transition: opacity .05s ease-in-out;
+
+    display: block;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    color: #000;
+    background: #FFF;
+    padding: 2px 2px;
+    border: 1px solid #c0c0c0;
+    box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.4);
+  }
+
+  *[data-tooltip]:hover::after {
+    opacity: 1;
+  }
+</style>
+
+<h3>Uptime for website.title.here.gov</h3>
+
+
+<div id="monitor">
+  <div id="status-bars">
+
+  </div>
+  <div id="underline">
+    <div id="before">
+      65 hours ago
+    </div>
+    <div id="now">
+      now
+    </div>
+  </div>
+</div>
+
+<script>
+  const addBars = (lines) => {
+    const statusBars = document.getElementById("status-bars")
+    realLines = lines.filter(line => line.length > 0)
+    const linesLeft = 65 - realLines.length
+    Array.from(Array(linesLeft)).map(x => createBar("missing", "No record")).map(element => statusBars.appendChild(element))
+    realLines.map(line => addBar(line)).map(element => statusBars.appendChild(element))
+  }
+
+  const addBar = (line) => {
+    if (line === "") { return false }
+    const status = line.match(/(up|dn)$/)[0]
+    const timestamp = line.slice(0, -3)
+    return createBar(status, timestamp)
+  }
+
+  const createBar = (shortStatus, timestamp) => {
+    const barDiv = document.createElement("div")
+    barDiv.classList.add('bar')
+    barDiv.classList.add(shortStatus)
+    const status = shortStatus == "up" ? "UP" : "DOWN"
+    barDiv.setAttribute('data-tooltip', `${status} • ${timestamp}`)
+    content = document.createTextNode("|")
+    barDiv.appendChild(content)
+    return barDiv
+  }
+
+  fetch('readlog.txt')
+    .then(response => response.text())
+    .then(text => text.split('\n'))
+    .then(lines => addBars(lines))
+</script>
+</body>
+</html>
