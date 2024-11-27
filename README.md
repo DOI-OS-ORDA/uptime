@@ -33,6 +33,35 @@ To run the server check manually, to make sure it's working or to force the firs
 - In the light blue bar, there will be a "Run workflow" dropdown.
 - Click it, make sure the branch is "main", and click "Run workflow".
 
+## Contributing and setup
+
+Contributions are welcome!
+
+### Running the server
+
+To run this locally, first clone the repository, `cd` into the folder, then run:
+
+```sh
+python3 -m http.server
+```
+
+This will run a simple server to serve the static page. Visit localhost:8000 to see the page.
+
+### Adding log data
+
+If you need log data, just run this command like 50 times, sometimes changing `up` to `dn` to simulate downtime:
+
+```sh
+echo "$(TZ=US/Eastern date -Iseconds) up" > log.txt
+```
+
+Then run:
+
+```
+tail -n 65 log.txt > readlog.txt
+```
+
+
 
 ## How does it work?
 
