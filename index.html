@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/2.0.2/timeago.min.js" integrity="sha512-sl01o/gVwybF1FNzqO4NDRDNPJDupfN0o2+tMm4K2/nr35FjGlxlvXZ6kK6faa9zhXbnfLIXioHnExuwJdlTMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <meta http-equiv="refresh" content="60" >
   <title>Uptime</title>
 
 </head>
@@ -39,6 +41,43 @@
 
   .up {
     color: #21c834 /* USWDS green-cool-30v */
+  }
+
+  #status .up {
+    color: #00a91c; /* USWDS green-cool-40v */
+    text-decoration: underline;
+  }
+
+  #status .dn {
+    color: #d83933; /* USWDS red-50 */
+    text-decoration: underline;
+  }
+
+  #status .missing {
+    color: #757575; /* USWDS gray-50 */
+    text-decoration: underline;
+  }
+
+  #status p, #details p {
+    font-size: 1rem;
+  }
+
+  #details p {
+    margin: 1rem 0;
+  }
+
+  #status h3 {
+    margin-bottom: 20px;
+  }
+
+  #details {
+    margin-top: 40px;
+  }
+
+  #refresh {
+    display: inline-block;
+    float: right;
+    margin-right: 5%;
   }
 
   .dn {
@@ -85,8 +124,14 @@
   }
 </style>
 
-<h3>Uptime for 18f.gsa.gov</h3>
-
+<div id="status">
+  <h3>The 18F website is <span id="last-check-status" class="missing">unknown</span></h3>
+  <p>
+    <span id="last-check-timestamp"></span>
+    <span id="last-check-time-ago"></span>
+    <span id="refresh"><a href=".">Refresh</a></span>
+  </p>
+</div>
 
 <div id="monitor">
   <div id="status-bars" class="monitor-part">
@@ -101,20 +146,39 @@
   </div>
 </div>
 
+<div id="details">
+  <p>
+    <span id="monitored-url">
+      <a href="https://18f.gsa.gov">https://18f.gsa.gov</a>
+    </span>
+    &bull;
+    <span id="last-check-http-status"></span>
+  </p>
+</div>
+
 <script>
   const addBars = (lines) => {
     const statusBars = document.getElementById("status-bars")
-    realLines = lines.filter(line => line.length > 0)
-    const linesLeft = 65 - realLines.length
-    Array.from(Array(linesLeft)).map(x => createBar("missing", "No record")).map(element => statusBars.appendChild(element))
-    realLines.map(line => addBar(line)).map(element => statusBars.appendChild(element))
+    const linesLeft = 65 - lines.length
+    Array
+      .from(Array(linesLeft))
+      .map(x => createBar("missing", "missing", "no record"))
+      .map(element => statusBars.appendChild(element))
+    lines
+      .map(line => addBar(line))
+      .map(element => statusBars.appendChild(element))
+    return lines
   }
 
   const addBar = (line) => {
-    if (line === "") { return false }
-    const [timeString, httpStatusCode, upDownStatus] = line.split(" | ")
-    console.log(timeString, httpStatusCode, upDownStatus)
-    const timestamp = new Date(timeString).toLocaleString('en-US', {
+    const lineObject = parseLine(line)
+    return createBar(lineObject.upOrDn, lineObject.upOrDown, lineObject.timestamp)
+  }
+
+  const parseLine = (line) => {
+    const [timeString, httpStatusCode, upOrDn] = line.split(" | ")
+    const datetime = new Date(timeString)
+    const timestamp = datetime.toLocaleString('en-US', {
       weekday: 'long',
       month: 'short',
       day: 'numeric',
@@ -122,24 +186,50 @@
       minute: 'numeric',
       hour12: true
     })
-    return createBar(upDownStatus, timestamp)
+    return {
+      datetime: new Date(timeString),
+      timestamp: timestamp,
+      httpCode: httpStatusCode,
+      upOrDn: upOrDn,
+      upOrDown: upOrDn == "up" ? "up" : "down"
+    }
   }
 
-  const createBar = (shortStatus, timestamp) => {
+  Object.defineProperty(String.prototype, 'capitalize', {
+    value: function() {
+      return this.charAt(0).toUpperCase() + this.slice(1);
+    },
+    enumerable: false
+  });
+
+  const createBar = (upDnClass, upDown, timestamp) => {
     const barDiv = document.createElement("div")
     barDiv.classList.add('bar')
-    barDiv.classList.add(shortStatus)
-    const status = shortStatus == "up" ? "Up" : "Down"
-    barDiv.setAttribute('data-tooltip', `${status} • ${timestamp}`)
+    barDiv.classList.add(upDnClass)
+    barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
     content = document.createTextNode("|")
     barDiv.appendChild(content)
     return barDiv
   }
 
+  const updateStatus = (lines) => {
+    const lastCheck = parseLine(lines.at(-1))
+    const lastCheckStatus = document.getElementById("last-check-status")
+    lastCheckStatus.classList.toggle("missing")
+    lastCheckStatus.classList.toggle(lastCheck.upOrDn)
+    lastCheckStatus.innerText = lastCheck.upOrDown
+    document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
+    document.getElementById("last-check-time-ago").innerText = `(${timeago().format(lastCheck.datetime)})`
+    document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
+  }
+
   fetch('readlog.txt')
     .then(response => response.text())
     .then(text => text.split('\n'))
+    .then(lines => lines.filter(line => line.length > 0))
     .then(lines => addBars(lines))
+    .then(lines => updateStatus(lines))
+
 </script>
 </body>
 </html>
