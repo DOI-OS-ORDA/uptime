@@ -112,8 +112,9 @@
 
   const addBar = (line) => {
     if (line === "") { return false }
-    const status = line.match(/(up|dn)$/)[0]
-    const timestamp = new Date(line.slice(0, -3)).toLocaleString('en-US', {
+    const [timeString, httpStatusCode, upDownStatus] = line.split(" | ")
+    console.log(timeString, httpStatusCode, upDownStatus)
+    const timestamp = new Date(timeString).toLocaleString('en-US', {
       weekday: 'long',
       month: 'short',
       day: 'numeric',
@@ -121,14 +122,14 @@
       minute: 'numeric',
       hour12: true
     })
-    return createBar(status, timestamp)
+    return createBar(upDownStatus, timestamp)
   }
 
   const createBar = (shortStatus, timestamp) => {
     const barDiv = document.createElement("div")
     barDiv.classList.add('bar')
     barDiv.classList.add(shortStatus)
-    const status = shortStatus == "up" ? "UP" : "DOWN"
+    const status = shortStatus == "up" ? "Up" : "Down"
     barDiv.setAttribute('data-tooltip', `${status} • ${timestamp}`)
     content = document.createTextNode("|")
     barDiv.appendChild(content)
