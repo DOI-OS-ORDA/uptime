@@ -232,16 +232,37 @@
 
   const updateStatus = (lines) => {
     const lastCheck = parseLine(lines.at(-1))
+    updateFavicon(lastCheck)
+    updateLastCheck(lastCheck)
+    updateLastCheckTimestamp(lastCheck)
+    updateLastCheckAgo(lastCheck)
+    updateLastCheckHttpStatus(lastCheck)
 
+    const firstCheck = parseLine(lines.at(0))
+    updateTimeline(firstCheck)
+  }
+
+  const updateTimeline = (firstCheck) => {
+    document.getElementById("before").innerText = timeago().format(firstCheck.datetime)
+  }
+
+  const updateFavicon = (lastCheck) => {
     const favicon = document.getElementById("favicon");
     favicon.setAttribute("href", `icons/${lastCheck.upOrDn}.png`)
+  }
 
+  const updateLastCheck = (lastCheck) => {
     const lastCheckStatus = document.getElementById("last-check-status")
     lastCheckStatus.classList.toggle("missing")
     lastCheckStatus.classList.toggle(lastCheck.upOrDn)
     lastCheckStatus.innerText = lastCheck.upOrDown
-    document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
+  }
 
+  const updateLastCheckTimestamp = (lastCheck) => {
+    document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
+  }
+
+  const updateLastCheckAgo = (lastCheck) => {
     const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
     const timeAgo = timeago().format(lastCheck.datetime)
 
@@ -251,7 +272,9 @@
     } else {
       lastCheckTimeAgo.innerText += `(${timeAgo})`
     }
+  }
 
+  const updateLastCheckHttpStatus = (lastCheck) => {
     document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
   }
 
