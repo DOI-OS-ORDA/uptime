@@ -16,9 +16,10 @@ jobs:
 
       # Add your job steps here
       - name: Ping the server and log the uptime
+        continue-on-error: true
         run: |
           now=$(TZ=US/Eastern date -Iseconds)
-          httpCode=$(curl -s -o /dev/null -w "%{http_code}" https://www.cerc.usgs.gov/orda_docs/)
+          httpCode=$(curl -S -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 20 https://www.cerc.usgs.gov/orda_docs/)
           statusText=$([[ $httpCode -eq 200 || $httpCode -eq 302 ]] && echo "up" || echo "dn")
           echo "$now | $httpCode | $statusText" >> log.txt
           tail -n 65 log.txt > readlog.txt
