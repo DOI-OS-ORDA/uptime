@@ -15,6 +15,7 @@
 
   body {
     font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
+
   }
 
   #monitor, .monitor-part {
@@ -88,6 +89,11 @@
     color: #919191 /* USWDS gray-40 */
   }
 
+  .too-long {
+    font-weight: 800;
+/*    color: #d83933; /* USWDS red-50 */*/
+  }
+
   *[data-tooltip] {
     position: relative;
   }
@@ -148,11 +154,16 @@
 
 <div id="details">
   <p>
+    Monitoring:
     <span id="monitored-url">
       <a href="https://www.cerc.usgs.gov/orda_docs/">https://www.cerc.usgs.gov/orda_docs/</a>
     </span>
-    &bull;
+  </p>
+  <p>
     <span id="last-check-http-status"></span>
+  </p>
+  <p>
+    <a href="https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt">View full log</a>
   </p>
 </div>
 
@@ -219,7 +230,17 @@
     lastCheckStatus.classList.toggle(lastCheck.upOrDn)
     lastCheckStatus.innerText = lastCheck.upOrDown
     document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
-    document.getElementById("last-check-time-ago").innerText = `(${timeago().format(lastCheck.datetime)})`
+
+    const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
+    const timeAgo = timeago().format(lastCheck.datetime)
+
+    if ((Date.now() - lastCheck.datetime) > (20 * 60 * 1000)) {
+      lastCheckTimeAgo.classList.toggle('too-long')
+      lastCheckTimeAgo.innerHTML += `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
+    } else {
+      lastCheckTimeAgo.innerText += `(${timeAgo})`
+    }
+
     document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
   }
 
