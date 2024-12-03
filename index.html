@@ -6,7 +6,15 @@
   <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/2.0.2/timeago.min.js" integrity="sha512-sl01o/gVwybF1FNzqO4NDRDNPJDupfN0o2+tMm4K2/nr35FjGlxlvXZ6kK6faa9zhXbnfLIXioHnExuwJdlTMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <meta http-equiv="refresh" content="60" >
-  <title>Uptime</title>
+  <!-- Default favicon image -->
+  <link
+    id="favicon"
+    rel="icon"
+    href="icons/missing.png"
+    type="image/png"
+    sizes="16x16"
+  >
+  <title>DARTS | Uptime monitoring</title>
 
 </head>
 <body>
@@ -15,7 +23,6 @@
 
   body {
     font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
-
   }
 
   #monitor, .monitor-part {
@@ -225,6 +232,10 @@
 
   const updateStatus = (lines) => {
     const lastCheck = parseLine(lines.at(-1))
+
+    const favicon = document.getElementById("favicon");
+    favicon.setAttribute("href", `icons/${lastCheck.upOrDn}.png`)
+
     const lastCheckStatus = document.getElementById("last-check-status")
     lastCheckStatus.classList.toggle("missing")
     lastCheckStatus.classList.toggle(lastCheck.upOrDn)
