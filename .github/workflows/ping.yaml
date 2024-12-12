@@ -47,7 +47,7 @@ jobs:
         with:
           sha: ${{ steps.commit-updated-log.outputs.commit_long_sha }}
           body: |
-            The ORDA DARTS server is either down or up.
+            The ORDA DARTS server is down.
 
             [View the uptime monitor](https://doi-os-orda.github.io/uptime/)
 
