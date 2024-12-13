@@ -7,8 +7,12 @@ on:
 
 
 jobs:
-  cron_job:
+
+  update_monitor:
+
     runs-on: ubuntu-latest
+
+    environment: production
 
     steps:
       - name: Checkout code
@@ -25,8 +29,37 @@ jobs:
           tail -n 65 log.txt > readlog.txt
 
       - uses: EndBug/add-and-commit@v9
+        id: commit-updated-log
         with:
           message: Add uptime check
           default_author: github_actions
           committer_name: GitHub Actions
           committer_email: actions@github.com
+
+      - name: Check if the status changed
+        continue-on-error: true
+        run: |
+          # If the last two log lines indicate a state change, note it for future notification steps
+          tail -n 2 readlog.txt | cut -d '|' -f 3 | xargs sh -c '[[ "$0" != "$1" ]] && echo STATE_CHANGE=$1' >> "$GITHUB_OUTPUT"
+
+      - uses: peter-evans/commit-comment@v3
+        if: steps.status-change.outputs.STATE_CHANGE == 'dn'
+        with:
+          sha: ${{ steps.commit-updated-log.outputs.commit_long_sha }}
+          body: |
+            The ORDA DARTS server is down.
+
+            [View the uptime monitor](https://doi-os-orda.github.io/uptime/)
+
+            ${{ vars.NOTIFY }}
+
+      - uses: peter-evans/commit-comment@v3
+        if: steps.status-change.outputs.STATE_CHANGE == 'up'
+        with:
+          body: |
+            The ORDA DARTS server is up.
+
+            [View the uptime monitor](https://doi-os-orda.github.io/uptime/)
+
+            ${{ vars.NOTIFY }}
+
