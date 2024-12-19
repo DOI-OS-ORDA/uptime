@@ -120,12 +120,17 @@ This will run a simple server to serve the static page. Visit localhost:8000 to 
 
 ### Adding log data
 
-If you need log data, just run this command 50 or more times, sometimes changing `up` to `dn` to simulate downtime:
+If you need log data, just run the following lines to simulate some uptime and downtime.
 
 ```sh
-count=65
+count=60
 for i in $(seq $count); do
-  echo "$(TZ=US/Eastern date -Iseconds) up" > log.txt
+  echo "$(TZ=US/Eastern date -Iseconds) | 200 | up" >> log.txt
+done
+
+count=20
+for i in $(seq $count); do
+  echo "$(TZ=US/Eastern date -Iseconds) | 500 | dn" >> log.txt
 done
 ```
 
