@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/2.0.2/timeago.min.js" integrity="sha512-sl01o/gVwybF1FNzqO4NDRDNPJDupfN0o2+tMm4K2/nr35FjGlxlvXZ6kK6faa9zhXbnfLIXioHnExuwJdlTMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <meta http-equiv="refresh" content="60" >
+
   <!-- Default favicon image -->
   <link
     id="favicon"
@@ -184,6 +184,7 @@
 <script>
   const addBars = (lines) => {
     const statusBars = document.getElementById("status-bars")
+    statusBars.innerHTML = null;
     const linesLeft = 65 - lines.length
     Array
       .from(Array(linesLeft))
@@ -260,8 +261,8 @@
 
   const updateLastCheck = (lastCheck) => {
     const lastCheckStatus = document.getElementById("last-check-status")
-    lastCheckStatus.classList.toggle("missing")
-    lastCheckStatus.classList.toggle(lastCheck.upOrDn)
+    lastCheckStatus.classList.remove("missing")
+    lastCheckStatus.classList.add(lastCheck.upOrDn)
     lastCheckStatus.innerText = lastCheck.upOrDown
   }
 
@@ -274,8 +275,8 @@
     const timeAgo = timeago().format(lastCheck.datetime)
 
     if ((Date.now() - lastCheck.datetime) > (20 * 60 * 1000)) {
-      lastCheckTimeAgo.classList.toggle('too-long')
-      lastCheckTimeAgo.innerHTML += `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
+      lastCheckTimeAgo.classList.add('too-long')
+      lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
     } else {
       lastCheckTimeAgo.innerText += `(${timeAgo})`
     }
@@ -285,12 +286,15 @@
     document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
   }
 
-  fetch('readlog.txt')
+  const refreshStatus = () => fetch('readlog.txt')
     .then(response => response.text())
     .then(text => text.split('\n'))
     .then(lines => lines.filter(line => line.length > 0))
     .then(lines => addBars(lines))
     .then(lines => updateStatus(lines))
+
+  refreshStatus();
+  setInterval(refreshStatus, 1 * 60 * 1000)
 
 </script>
 </body>
