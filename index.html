@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,6 +25,12 @@
     font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
   }
 
+  h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+    margin-top: 3rem;
+  }
+
   #monitor, .monitor-part {
     display: inline-block;
     width: 100%;
@@ -33,7 +39,7 @@
   #status-bars {  }
 
   #underline {
-    color: #555;
+    color: #999;
   }
 
   #before { float: left; }
@@ -53,12 +59,10 @@
 
   #status .up {
     color: #00a91c; /* USWDS green-cool-40v */
-    text-decoration: underline;
   }
 
   #status .dn {
     color: #d83933; /* USWDS red-50 */
-    text-decoration: underline;
   }
 
   #status .missing {
@@ -137,42 +141,45 @@
   }
 </style>
 
-<div id="status">
-  <h3>ORDA DARTS is <span id="last-check-status" class="missing">unknown</span></h3>
-  <p>
-    <span id="last-check-timestamp"></span>
-    <span id="last-check-time-ago"></span>
-    <span id="refresh"><a href=".">Refresh</a></span>
-  </p>
-</div>
-
-<div id="monitor">
-  <div id="status-bars" class="monitor-part">
+<main>
+  <div id="status">
+    <h1>ORDA DARTS is <span id="last-check-status" class="missing">unknown</span></h1>
+    <p>
+      <span id="last-check-timestamp"></span>
+      <span id="last-check-time-ago"></span>
+      <span id="refresh"><a href=".">Refresh</a></span>
+    </p>
   </div>
-  <div id="underline" class="monitor-part">
-    <div id="before" class="time">
-      ~ 16 hours ago
+
+  <div id="monitor">
+    <div id="status-bars" class="monitor-part">
     </div>
-    <div id="now" class="time">
-      now
+    <div id="underline" class="monitor-part">
+      <div id="before" class="time">
+        ~ 16 hours ago
+      </div>
+      <div id="now" class="time">
+        now
+      </div>
     </div>
   </div>
-</div>
 
-<div id="details">
-  <p>
-    Monitoring:
-    <span id="monitored-url">
-      <a href="https://www.cerc.usgs.gov/orda_docs/">https://www.cerc.usgs.gov/orda_docs/</a>
-    </span>
-  </p>
-  <p>
-    <span id="last-check-http-status"></span>
-  </p>
-  <p>
-    <a href="https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt">View full log</a>
-  </p>
-</div>
+  <div id="details">
+    <p>
+      Monitoring:
+      <span id="monitored-url">
+        <a href="https://www.cerc.usgs.gov/orda_docs/">https://www.cerc.usgs.gov/orda_docs/</a>
+      </span>
+    </p>
+    <p>
+      <span id="last-check-http-status"></span>
+    </p>
+    <p>
+      <a href="https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt">View full log</a>
+    </p>
+  </div>
+
+</main>
 
 <script>
   const addBars = (lines) => {
