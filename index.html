@@ -231,10 +231,50 @@
       this.element = document.getElementById(id)
     }
 
-    update() {}
+    update(lastCheck) {
+      this.lastCheck = lastCheck
+      this.updateFavicon()
+      this.updateLastCheck()
+      this.updateLastCheckTimestamp()
+      this.updateLastCheckAgo()
+      this.updateLastCheckHttpStatus()
+    }
+
+    updateFavicon() {
+      const favicon = document.getElementById("favicon");
+      favicon.setAttribute("href", `icons/${this.lastCheck.upOrDn}.png`)
+    }
+
+    updateLastCheck() {
+      const lastCheckStatus = document.getElementById("last-check-status")
+      lastCheckStatus.classList.remove("missing")
+      lastCheckStatus.classList.add(this.lastCheck.upOrDn)
+      lastCheckStatus.innerText = this.lastCheck.upOrDown
+    }
+
+    updateLastCheckTimestamp() {
+      document.getElementById("last-check-timestamp").innerText = `Last check: ${this.lastCheck.timestamp}`
+    }
+
+    updateLastCheckAgo() {
+      const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
+      const timeAgo = timeago().format(this.lastCheck.datetime)
+
+      if ((Date.now() - this.lastCheck.datetime) > (20 * 60 * 1000)) {
+        lastCheckTimeAgo.classList.add('too-long')
+        lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
+      } else {
+        lastCheckTimeAgo.innerText = `(${timeAgo})`
+      }
+    }
+
+    updateLastCheckHttpStatus() {
+      document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${this.lastCheck.httpCode}`
+    }
+
   }
 
-  class StatusBars {
+  class Timeline {
     constructor(id = "status-bars", lines = [], limit = settings.bars.limit ) {
       this.element = document.getElementById(id)
       this.limit = limit
@@ -248,14 +288,19 @@
       return Array.from(Array(this.limit - this.lines.length))
     }
 
+    updateTimeline(firstCheck) {
+      document.getElementById("before").innerText = timeago().format(firstCheck.datetime)
+    }
+
     update(lines) {
       this.lines = lines
       this.clear();
+      this.updateTimeline(lines.at(0))
       this.fillerBars()
-        .map(x => createBar("missing", "missing", "no record"))
+        .map(x => StatusBar.build("missing", "missing", "no record"))
         .map(element => this.element.appendChild(element))
       lines
-        .map(line => addBar(line))
+        .map(line => StatusBar.build(line.upOrDn, line.upOrDown, line.timestamp))
         .map(element => this.element.appendChild(element))
       return lines
     }
@@ -269,95 +314,49 @@
     update() {}
   }
 
-  const addBar = (line) => {
-    const lineObject = parseLine(line)
-    return createBar(lineObject.upOrDn, lineObject.upOrDown, lineObject.timestamp)
+  class StatusBar {
+    static build(upDnClass, upDown, timestamp) {
+      const barDiv = document.createElement("div")
+      barDiv.classList.add('bar')
+      barDiv.classList.add(upDnClass)
+      barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
+      const content = document.createTextNode("|")
+      barDiv.appendChild(content)
+      return barDiv
+    }
   }
+
+  const dateOptions = {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  }
+
+  // class StatusCheck { }
 
   const parseLine = (line) => {
     const [timeString, httpStatusCode, upOrDn] = line.split(" | ")
     const datetime = new Date(timeString)
-    const timestamp = datetime.toLocaleString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    })
+
     return {
       datetime: new Date(timeString),
-      timestamp: timestamp,
+      timestamp: datetime.toLocaleString('en-US', dateOptions),
       httpCode: httpStatusCode,
       upOrDn: upOrDn,
       upOrDown: upOrDn == "up" ? "up" : "down"
     }
   }
 
-  const createBar = (upDnClass, upDown, timestamp) => {
-    const barDiv = document.createElement("div")
-    barDiv.classList.add('bar')
-    barDiv.classList.add(upDnClass)
-    barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
-    content = document.createTextNode("|")
-    barDiv.appendChild(content)
-    return barDiv
-  }
-
-  const updateStatus = (lines) => {
-    const lastCheck = parseLine(lines.at(-1))
-    updateFavicon(lastCheck)
-    updateLastCheck(lastCheck)
-    updateLastCheckTimestamp(lastCheck)
-    updateLastCheckAgo(lastCheck)
-    updateLastCheckHttpStatus(lastCheck)
-
-    const firstCheck = parseLine(lines.at(0))
-    updateTimeline(firstCheck)
-  }
-
-  const updateTimeline = (firstCheck) => {
-    document.getElementById("before").innerText = timeago().format(firstCheck.datetime)
-  }
-
-  const updateFavicon = (lastCheck) => {
-    const favicon = document.getElementById("favicon");
-    favicon.setAttribute("href", `icons/${lastCheck.upOrDn}.png`)
-  }
-
-  const updateLastCheck = (lastCheck) => {
-    const lastCheckStatus = document.getElementById("last-check-status")
-    lastCheckStatus.classList.remove("missing")
-    lastCheckStatus.classList.add(lastCheck.upOrDn)
-    lastCheckStatus.innerText = lastCheck.upOrDown
-  }
-
-  const updateLastCheckTimestamp = (lastCheck) => {
-    document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
-  }
-
-  const updateLastCheckAgo = (lastCheck) => {
-    const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
-    const timeAgo = timeago().format(lastCheck.datetime)
-
-    if ((Date.now() - lastCheck.datetime) > (20 * 60 * 1000)) {
-      lastCheckTimeAgo.classList.add('too-long')
-      lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
-    } else {
-      lastCheckTimeAgo.innerText = `(${timeAgo})`
-    }
-  }
-
-  const updateLastCheckHttpStatus = (lastCheck) => {
-    document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
-  }
-
   const refreshStatus = () => fetch('readlog.txt')
     .then(response => response.text())
     .then(text => text.split('\n'))
     .then(lines => lines.filter(line => line.length > 0))
-    .then(lines => (new StatusBars).update(lines))
-    .then(lines => updateStatus(lines))
+    .then(lines => lines.map(parseLine))
+    .then(lines => (new Timeline).update(lines))
+    .then(lines => (new LastCheck).update(lines.at(-1)))
 
   refreshStatus();
   setInterval(refreshStatus, 1 * 60 * 1000)
