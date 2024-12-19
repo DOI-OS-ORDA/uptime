@@ -39,7 +39,7 @@
   #status-bars {  }
 
   #underline {
-    color: #999;
+    color: #666;
   }
 
   #before { float: left; }
@@ -53,9 +53,27 @@
     font-size: 3rem;
   }
 
+  /*
+    This color gives a low-contrast warning. We're ignoring it because
+    we're repurposing text for status bars. These bars do not have to be
+    readable the way text is readable.
+
+    If we darkened this color, we'd either have to accept low contrast
+    between up and down bars, or we'd have to darken the red status bars to
+    almost black.
+  */
   .up {
     color: #21c834 /* USWDS green-cool-30v */
   }
+
+  .dn {
+    color: #a23737; /* USWDS red-60 */
+  }
+
+  .missing {
+    color: #919191 /* USWDS gray-40 */
+  }
+
 
   #status .up {
     color: #00a91c; /* USWDS green-cool-40v */
@@ -92,17 +110,9 @@
     margin-right: 5%;
   }
 
-  .dn {
-    color: #e9695f; /* USWDS red-40 */
-  }
-
-  .missing {
-    color: #919191 /* USWDS gray-40 */
-  }
 
   .too-long {
     font-weight: 800;
-/*    color: #d83933; /* USWDS red-50 */*/
   }
 
   *[data-tooltip] {
@@ -278,7 +288,7 @@
       lastCheckTimeAgo.classList.add('too-long')
       lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
     } else {
-      lastCheckTimeAgo.innerText += `(${timeAgo})`
+      lastCheckTimeAgo.innerText = `(${timeAgo})`
     }
   }
 
