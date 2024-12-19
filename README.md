@@ -70,11 +70,6 @@ $statusText = If (($httpCode -eq 200) -or ($httpCode -eq 302)) {"up"} Else {"dn"
 echo "$now | $httpCode | $statusText" | Out-File -FilePath \absolute\path\to\log.txt -Encoding utf8 -Append
 Get-Content \absolute\path\to\log.txt -Tail 65 | Out-File -FilePath \absolute\path\to\readlog.txt -Encoding utf8
 
-
-# Determine if the server status changed (from up to down, or down to up)
-
-Get-Content \absolute\path\to\readlog.txt -Tail 2 | cut -d '|' -f 3 | xargs sh -c '[[ "$0" != "$1" ]] && echo STATE_CHANGE=$1' | Out-File -FilePath statuschange.txt -Encoding utf8
-
 # example usage of Did-Status-Change:
 #   @("up" | "dn") | Did-Status-Change
 #   #=> True
@@ -91,6 +86,7 @@ function Did-Status-Change() {
     ($input[0] -ne $input[1])
 }
 
+# Determine if the server status changed (from up to down, or down to up)
 $didStatusChange = Get-Content \absolute\path\to\readlog.txt -Tail 2 | ForEach-Object { $_.split("|")[2].Trim() } | Did-Status-Change
 
 If ($didStatusChange) {
@@ -110,17 +106,17 @@ If ($didStatusChange) {
 
 ## Running the server (Unix / macOS)
 
-To run the site locally, first clone the repository, `cd` into the folder, then run:
+To run the site locally, first clone the repository, `cd` into the folder. Then, run a simple HTTP server to serve this directory. If you have Python 3 installed, run the following (your command may use either `python` or `python3`:
 
 ```sh
 python3 -m http.server
 ```
 
-This will run a simple server to serve the static page. Visit localhost:8000 to see the page.
+This will run a simple server to serve the static page. Visit http://localhost:8000/ to see the page.
 
 ### Adding log data
 
-If you need log data, just run the following lines to simulate some uptime and downtime.
+If you need log data, just run the following to simulate some uptime and downtime.
 
 ```sh
 count=60
@@ -140,5 +136,5 @@ Then run:
 tail -n 65 log.txt > readlog.txt
 ```
 
-You should see the status information when you refresh.
+You should see the status information when you refresh. Remember not to commit these changes, otherwise you'll have fake data in your log history.
 
