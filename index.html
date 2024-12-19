@@ -188,27 +188,11 @@
 
 <script>
 
-  const settings = {
-    website: {
-      name: "ORDA DARTS",
-      short_name: "DARTS",
-      url: "https://www.cerc.usgs.gov/orda_docs/",
-    },
-    bars: {
-      limit: 65,
-    },
-    logs: {
-      internal: {
-        main: "log.txt",
-        recent: "readlog.txt",
-        incidents: "incidents.txt",
-      },
-      links: {
-        main: "log.txt",
-        actions: "https://github.com/DOI-OS-ORDA/uptime/actions",
-      }
-    }
-  }
+  const request = new XMLHttpRequest();
+  request.open("GET", "settings.json", false)
+  request.send(null);
+  const settings = JSON.parse(request.responseText);
+
 
   Object.defineProperty(String.prototype, 'capitalize', {
     value: function() {
@@ -216,15 +200,6 @@
     },
     enumerable: false
   });
-
-
-  class Headline {
-    constructor(id = "status") {
-      this.element = document.getElementById(id)
-    }
-
-    update() {}
-  }
 
   class LastCheck {
     constructor(id = "last-check") {
@@ -234,18 +209,19 @@
     update(lastCheck) {
       this.lastCheck = lastCheck
       this.updateFavicon()
-      this.updateLastCheck()
+      this.updateHeadline()
       this.updateLastCheckTimestamp()
       this.updateLastCheckAgo()
-      this.updateLastCheckHttpStatus()
+      this.updateDetailsHttpStatus()
     }
 
     updateFavicon() {
-      const favicon = document.getElementById("favicon");
-      favicon.setAttribute("href", `icons/${this.lastCheck.upOrDn}.png`)
+      document
+        .getElementById("favicon")
+        .setAttribute("href", `icons/${this.lastCheck.upOrDn}.png`)
     }
 
-    updateLastCheck() {
+    updateHeadline() {
       const lastCheckStatus = document.getElementById("last-check-status")
       lastCheckStatus.classList.remove("missing")
       lastCheckStatus.classList.add(this.lastCheck.upOrDn)
@@ -253,7 +229,9 @@
     }
 
     updateLastCheckTimestamp() {
-      document.getElementById("last-check-timestamp").innerText = `Last check: ${this.lastCheck.timestamp}`
+      document
+        .getElementById("last-check-timestamp")
+        .innerText = `Last check: ${this.lastCheck.timestamp}`
     }
 
     updateLastCheckAgo() {
@@ -268,14 +246,16 @@
       }
     }
 
-    updateLastCheckHttpStatus() {
-      document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${this.lastCheck.httpCode}`
+    updateDetailsHttpStatus() {
+      document
+        .getElementById("last-check-http-status")
+        .innerText = `Last HTTP status code: ${this.lastCheck.httpCode}`
     }
 
   }
 
   class Timeline {
-    constructor(id = "status-bars", lines = [], limit = settings.bars.limit ) {
+    constructor(id = "status-bars", lines = [], limit = settings.bars.limit) {
       this.element = document.getElementById(id)
       this.limit = limit
     }
@@ -289,7 +269,9 @@
     }
 
     updateTimeline(firstCheck) {
-      document.getElementById("before").innerText = timeago().format(firstCheck.datetime)
+      document
+        .getElementById("before")
+        .innerText = timeago().format(firstCheck.datetime)
     }
 
     update(lines) {
@@ -306,13 +288,7 @@
     }
   }
 
-  class Details {
-    constructor(id = "details") {
-      this.element = document.getElementById(id)
-    }
-
-    update() {}
-  }
+  // class Details { }
 
   class StatusBar {
     static build(upDnClass, upDown, timestamp) {
@@ -320,19 +296,9 @@
       barDiv.classList.add('bar')
       barDiv.classList.add(upDnClass)
       barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
-      const content = document.createTextNode("|")
-      barDiv.appendChild(content)
+      barDiv.appendChild(document.createTextNode("|"))
       return barDiv
     }
-  }
-
-  const dateOptions = {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true
   }
 
   // class StatusCheck { }
@@ -343,7 +309,7 @@
 
     return {
       datetime: new Date(timeString),
-      timestamp: datetime.toLocaleString('en-US', dateOptions),
+      timestamp: datetime.toLocaleString('en-US', settings.date),
       httpCode: httpStatusCode,
       upOrDn: upOrDn,
       upOrDown: upOrDn == "up" ? "up" : "down"
