@@ -1,32 +1,30 @@
 {
-    "website": {
-        "name": "ORDA DARTS",
-        "short_name": "DARTS",
-        "url": "https://www.cerc.usgs.gov/orda_docs/"
+  "website": {
+    "name": "ORDA DARTS",
+    "short_name": "DARTS",
+    "url": "https://www.cerc.usgs.gov/orda_docs/"
+  },
+  "status_checks": {
+    "check_every": 1,
+    "number_of_bars": 65,
+    "warn_after": 25
+  },
+  "logs": {
+    "paths": {
+      "all": "log.txt",
+      "recent": "readlog.txt"
     },
-    "date": {
-        "weekday": "long",
-        "month": "short",
-        "day": "numeric",
-        "hour": "numeric",
-        "minute": "numeric",
-        "hour12": true
-    },
-    "bars": {
-        "limit": 65
-    },
-    "last_check": {
-        "warn_after_minutes": 20
-    },
-    "logs": {
-        "internal": {
-            "main": "log.txt",
-            "recent": "readlog.txt",
-            "incidents": "incidents.txt"
-        },
-        "links": {
-            "main": "log.txt",
-            "actions": "https://github.com/DOI-OS-ORDA/uptime/actions"
-        }
+    "links": {
+      "all": "https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt",
+      "actions": "https://github.com/DOI-OS-ORDA/uptime/actions"
     }
+  },
+  "date": {
+    "weekday": "long",
+    "month": "short",
+    "day": "numeric",
+    "hour": "numeric",
+    "minute": "numeric",
+    "hour12": true
+  }
 }

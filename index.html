@@ -14,7 +14,7 @@
     type="image/png"
     sizes="16x16"
   >
-  <title>DARTS | Uptime monitoring</title>
+  <title>Uptime monitoring</title>
 
 </head>
 <body>
@@ -148,7 +148,7 @@
 
 <main>
   <div id="status">
-    <h1>ORDA DARTS is <span id="last-check-status" class="missing">unknown</span></h1>
+    <h1><span data-setting="website.name">The website</span> is <span id="last-check-status" class="missing">unknown</span></h1>
     <p>
       <span id="last-check-timestamp"></span>
       <span id="last-check-time-ago"></span>
@@ -173,26 +173,21 @@
     <p>
       Monitoring:
       <span id="monitored-url">
-        <a href="https://www.cerc.usgs.gov/orda_docs/">https://www.cerc.usgs.gov/orda_docs/</a>
+        <a data-setting="website.url" data-setting-href="website.url" href="#">#</a>
       </span>
     </p>
     <p>
       <span id="last-check-http-status"></span>
     </p>
     <p>
-      <a href="https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt">View full log</a>
+      <a data-setting-href="logs.links.all" href="#">View full log</a>
     </p>
   </div>
 
 </main>
 
 <script>
-
-  const request = new XMLHttpRequest();
-  request.open("GET", "settings.json", false)
-  request.send(null);
-  const settings = JSON.parse(request.responseText);
-
+  const minutes = 60 * 1000;
 
   Object.defineProperty(String.prototype, 'capitalize', {
     value: function() {
@@ -238,9 +233,9 @@
       const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
       const timeAgo = timeago().format(this.lastCheck.datetime)
 
-      if ((Date.now() - this.lastCheck.datetime) > (20 * 60 * 1000)) {
+      if ((Date.now() - this.lastCheck.datetime) > (settings.status_checks.warn_after * minutes)) {
         lastCheckTimeAgo.classList.add('too-long')
-        lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
+        lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='${settings.logs.links.actions}'>Check logs</a>)`
       } else {
         lastCheckTimeAgo.innerText = `(${timeAgo})`
       }
@@ -255,7 +250,7 @@
   }
 
   class Timeline {
-    constructor(id = "status-bars", lines = [], limit = settings.bars.limit) {
+    constructor(id = "status-bars", lines = [], limit = settings.status_checks.number_of_bars) {
       this.element = document.getElementById(id)
       this.limit = limit
     }
@@ -288,8 +283,6 @@
     }
   }
 
-  // class Details { }
-
   class StatusBar {
     static build(upDnClass, upDown, timestamp) {
       const barDiv = document.createElement("div")
@@ -301,7 +294,31 @@
     }
   }
 
-  // class StatusCheck { }
+  const loadSettings = () => {
+    const request = new XMLHttpRequest();
+    request.open("GET", "settings.json", false)
+    request.send(null);
+    const settings = JSON.parse(request.responseText);
+    console.dir(settings)
+    return settings
+  }
+
+  function getProperty(json, path) {
+    var tokens = path.split(".");
+    var obj = json;
+    for (var i = 0; i < tokens.length; i++) {
+      obj = obj[tokens[i]];
+    }
+    return obj;
+  }
+
+  const setupPage = () => {
+    document.querySelectorAll('[data-setting]').forEach(link => link.innerHTML = getProperty(settings, link.getAttribute('data-setting')))
+    document.querySelectorAll('[data-setting-href]').forEach(link => link.href = getProperty(settings, link.getAttribute('data-setting-href')))
+
+    const title = document.getElementsByTagName("title")[0]
+    title.innerHTML = [settings.website.short_name, title.innerHTML].join(" | ")
+  }
 
   const parseLine = (line) => {
     const [timeString, httpStatusCode, upOrDn] = line.split(" | ")
@@ -316,7 +333,7 @@
     }
   }
 
-  const refreshStatus = () => fetch('readlog.txt')
+  const refreshStatus = () => fetch(settings.logs.paths.recent)
     .then(response => response.text())
     .then(text => text.split('\n'))
     .then(lines => lines.filter(line => line.length > 0))
@@ -324,8 +341,10 @@
     .then(lines => (new Timeline).update(lines))
     .then(lines => (new LastCheck).update(lines.at(-1)))
 
+  settings = loadSettings();
+  setupPage();
   refreshStatus();
-  setInterval(refreshStatus, 1 * 60 * 1000)
+  setInterval(refreshStatus, settings.status_checks.check_every * minutes)
 
 </script>
 </body>
