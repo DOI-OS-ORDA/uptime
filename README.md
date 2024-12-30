@@ -27,12 +27,33 @@ Process:
 
 ## Installation
 
+First, update the `settings.json` to configure your Uptime monitor.
+
+- Website
+  - name: The full name of your website
+  - short_name: The name of your website that will appear in the tab title
+  - url: The URL you'd like to monitor.
+- Status checks
+  - refresh_every: The number of minutes between page refreshes. This is different than the number of minutes between each status check. Default: 1.
+  - recent_entries: The number of status bars to display.
+  - warn_after: After this number of minutes, show a message that prompts the user to check the logs of the status check jobs. When using GitHub Actions, there's sometimes a delay, so jobs set to run every 15 minutes might run every 20-25 minutes. This isn't necessarily an error, so we suggest alerting at or after 25 minutes.
+- Logs
+  - Paths
+    - all: The file path to the log of all the status check records. Default: log.txt
+    - recent: The file path to the recent status check records to display. Default: readlog.txt
+  - Links
+    - all: A public URL or file path to the log of all the status check records. Viewers will be able to navigate to this link.
+    - actions: A public URL or file path to where the server check jobs are being recorded. For example, if you are using GitHub Actions, this would link to the GitHub Actions logs.
+
+
+Then, follow the setup instructions for your platform below, either **GitHub Actions** or **Windows server**.
+
 ### Using GitHub Actions
 
 - First, make sure GitHub Actions are allowed for your GitHub account or organization, and that Actions can have Write access to repositories.
 - Clone this repository to your own GitHub account / organization. (We recommend cloning because forking appears to cause problems with GitHub Actions.)
 - Delete the contents of `log.txt` and `readlog.txt`, but leave the empty files in place.
-- Find and replace the website title and URL everywhere in the repo with your own website title and URL. Make sure to look index.html and in the recurring task commands, to make sure the URL is set correctly everywhere.
+- Change the URL in `.github/workflows/ping.yaml` to the URL you want to monitor. This should match the website URL setting in `settings.json`.
 - Go to the GitHub Pages settings for your repository. Set it to deploy your `main` branch at `/` (root).
 
 The GitHub Pages page will update a few minutes after every server status check.
@@ -47,7 +68,7 @@ To run the server status check manually:
 This will gather your first bit of data, and will force the GitHub Pages page to deploy.
 
 
-### Using a Windows Server
+### Using a Windows server
 
 You'll have to set up the web hosting, server status check, and email notifications yourself.
 
@@ -116,7 +137,7 @@ To run the site locally, first clone the repository, `cd` into the folder, then 
 python3 -m http.server
 ```
 
-This will run a simple server to serve the static page. Visit localhost:8000 to see the page.
+This will run a simple server to serve the static page. Visit [localhost:8000](http://localhost:8000) to see the page.
 
 ### Adding log data
 

@@ -5,8 +5,8 @@
     "url": "https://www.cerc.usgs.gov/orda_docs/"
   },
   "status_checks": {
-    "check_every": 1,
-    "number_of_bars": 65,
+    "refresh_every": 1,
+    "recent_entries": 65,
     "warn_after": 25
   },
   "logs": {

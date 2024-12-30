@@ -250,7 +250,7 @@
   }
 
   class Timeline {
-    constructor(id = "status-bars", lines = [], limit = settings.status_checks.number_of_bars) {
+    constructor(id = "status-bars", lines = [], limit = settings.status_checks.recent_entries) {
       this.element = document.getElementById(id)
       this.limit = limit
     }
@@ -298,9 +298,7 @@
     const request = new XMLHttpRequest();
     request.open("GET", "settings.json", false)
     request.send(null);
-    const settings = JSON.parse(request.responseText);
-    console.dir(settings)
-    return settings
+    return JSON.parse(request.responseText);
   }
 
   function getProperty(json, path) {
@@ -344,7 +342,7 @@
   settings = loadSettings();
   setupPage();
   refreshStatus();
-  setInterval(refreshStatus, settings.status_checks.check_every * minutes)
+  setInterval(refreshStatus, settings.status_checks.refresh_every * minutes)
 
 </script>
 </body>
