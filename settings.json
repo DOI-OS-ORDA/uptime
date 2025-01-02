@@ -1,0 +1,30 @@
+{
+  "website": {
+    "name": "ORDA DARTS",
+    "short_name": "DARTS",
+    "url": "https://www.cerc.usgs.gov/orda_docs/"
+  },
+  "status_checks": {
+    "refresh_every": 1,
+    "recent_entries": 65,
+    "warn_after": 25
+  },
+  "logs": {
+    "paths": {
+      "all": "log.txt",
+      "recent": "readlog.txt"
+    },
+    "links": {
+      "all": "https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt",
+      "actions": "https://github.com/DOI-OS-ORDA/uptime/actions"
+    }
+  },
+  "date": {
+    "weekday": "long",
+    "month": "short",
+    "day": "numeric",
+    "hour": "numeric",
+    "minute": "numeric",
+    "hour12": true
+  }
+}

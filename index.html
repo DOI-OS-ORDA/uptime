@@ -14,12 +14,33 @@
     type="image/png"
     sizes="16x16"
   >
-  <title>DARTS | Uptime monitoring</title>
+  <title>Uptime monitoring</title>
 
 </head>
 <body>
 
 <style>
+  :root {
+    --uswds-green-cool-30v: #21c834;
+    --uswds-red-60: #a23737;
+    --uswds-gray-40: #919191;
+    --uswds-green-cool-40v: #00a91c;
+    --uswds-red-50: #d83933;
+    --uswds-gray-50: #757575;
+
+    --bar-up: var(--uswds-green-cool-30v);
+    --bar-dn: var(--uswds-red-60);
+    --bar-missing: var(--uswds-gray-40);
+
+    --bar-weight: 720;
+    --bar-font: inherit;
+
+    --text-up: var(--uswds-green-cool-40v);
+    --text-dn: var(--uswds-red-50);
+    --text-missing: var(--uswds-gray-50);
+
+    --font-size: 1rem;
+  }
 
   body {
     font-family: "Inter", "Helvetica Neue", "Helvetica", sans-serif;
@@ -36,18 +57,13 @@
     width: 100%;
   }
 
-  #status-bars {  }
-
-  #underline {
-    color: #666;
-  }
-
+  #timeline { color: #666; }
   #before { float: left; }
-
   #now { float: right; }
 
   .bar {
-    font-weight: 720;
+    font-family: var(--bar-font);
+    font-weight: var(--bar-weight);
     display: inline-block;
     float: left;
     font-size: 3rem;
@@ -62,38 +78,20 @@
     between up and down bars, or we'd have to darken the red status bars to
     almost black.
   */
-  .up {
-    color: #21c834 /* USWDS green-cool-30v */
-  }
+  .up { color: var(--bar-up) }
+  .dn { color: var(--bar-dn) }
+  .missing { color: var(--bar-missing) }
 
-  .dn {
-    color: #a23737; /* USWDS red-60 */
-  }
-
-  .missing {
-    color: #919191 /* USWDS gray-40 */
-  }
-
-
-  #status .up {
-    color: #00a91c; /* USWDS green-cool-40v */
-  }
-
-  #status .dn {
-    color: #d83933; /* USWDS red-50 */
-  }
-
-  #status .missing {
-    color: #757575; /* USWDS gray-50 */
-    text-decoration: underline;
-  }
+  #status .up { color: var(--text-up) }
+  #status .dn { color: var(--text-down) }
+  #status .missing { color: var(--text-missing) }
 
   #status p, #details p {
-    font-size: 1rem;
+    font-size: var(--font-size);
   }
 
   #details p {
-    margin: 1rem 0;
+    margin: var(--font-size) 0;
   }
 
   #status h3 {
@@ -110,10 +108,7 @@
     margin-right: 5%;
   }
 
-
-  .too-long {
-    font-weight: 800;
-  }
+  .too-long { font-weight: 800; }
 
   *[data-tooltip] {
     position: relative;
@@ -136,7 +131,7 @@
     transition: opacity .05s ease-in-out;
 
     display: block;
-    font-size: 1rem;
+    font-size: var(--font-size);
     font-weight: 400;
     line-height: 1.5rem;
     color: #000;
@@ -153,7 +148,7 @@
 
 <main>
   <div id="status">
-    <h1>ORDA DARTS is <span id="last-check-status" class="missing">unknown</span></h1>
+    <h1><span data-setting="website.name">The website</span> is <span id="last-check-status" class="missing">unknown</span></h1>
     <p>
       <span id="last-check-timestamp"></span>
       <span id="last-check-time-ago"></span>
@@ -164,7 +159,7 @@
   <div id="monitor">
     <div id="status-bars" class="monitor-part">
     </div>
-    <div id="underline" class="monitor-part">
+    <div id="timeline" class="monitor-part">
       <div id="before" class="time">
         ~ 16 hours ago
       </div>
@@ -178,58 +173,21 @@
     <p>
       Monitoring:
       <span id="monitored-url">
-        <a href="https://www.cerc.usgs.gov/orda_docs/">https://www.cerc.usgs.gov/orda_docs/</a>
+        <a data-setting="website.url" data-setting-href="website.url" href="#">#</a>
       </span>
     </p>
     <p>
       <span id="last-check-http-status"></span>
     </p>
     <p>
-      <a href="https://github.com/DOI-OS-ORDA/uptime/blob/main/log.txt">View full log</a>
+      <a data-setting-href="logs.links.all" href="#">View full log</a>
     </p>
   </div>
 
 </main>
 
 <script>
-  const addBars = (lines) => {
-    const statusBars = document.getElementById("status-bars")
-    statusBars.innerHTML = null;
-    const linesLeft = 65 - lines.length
-    Array
-      .from(Array(linesLeft))
-      .map(x => createBar("missing", "missing", "no record"))
-      .map(element => statusBars.appendChild(element))
-    lines
-      .map(line => addBar(line))
-      .map(element => statusBars.appendChild(element))
-    return lines
-  }
-
-  const addBar = (line) => {
-    const lineObject = parseLine(line)
-    return createBar(lineObject.upOrDn, lineObject.upOrDown, lineObject.timestamp)
-  }
-
-  const parseLine = (line) => {
-    const [timeString, httpStatusCode, upOrDn] = line.split(" | ")
-    const datetime = new Date(timeString)
-    const timestamp = datetime.toLocaleString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    })
-    return {
-      datetime: new Date(timeString),
-      timestamp: timestamp,
-      httpCode: httpStatusCode,
-      upOrDn: upOrDn,
-      upOrDown: upOrDn == "up" ? "up" : "down"
-    }
-  }
+  const minutes = 60 * 1000;
 
   Object.defineProperty(String.prototype, 'capitalize', {
     value: function() {
@@ -238,73 +196,153 @@
     enumerable: false
   });
 
-  const createBar = (upDnClass, upDown, timestamp) => {
-    const barDiv = document.createElement("div")
-    barDiv.classList.add('bar')
-    barDiv.classList.add(upDnClass)
-    barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
-    content = document.createTextNode("|")
-    barDiv.appendChild(content)
-    return barDiv
+  class LastCheck {
+    constructor(id = "last-check") {
+      this.element = document.getElementById(id)
+    }
+
+    update(lastCheck) {
+      this.lastCheck = lastCheck
+      this.updateFavicon()
+      this.updateHeadline()
+      this.updateLastCheckTimestamp()
+      this.updateLastCheckAgo()
+      this.updateDetailsHttpStatus()
+    }
+
+    updateFavicon() {
+      document
+        .getElementById("favicon")
+        .setAttribute("href", `icons/${this.lastCheck.upOrDn}.png`)
+    }
+
+    updateHeadline() {
+      const lastCheckStatus = document.getElementById("last-check-status")
+      lastCheckStatus.classList.remove("missing")
+      lastCheckStatus.classList.add(this.lastCheck.upOrDn)
+      lastCheckStatus.innerText = this.lastCheck.upOrDown
+    }
+
+    updateLastCheckTimestamp() {
+      document
+        .getElementById("last-check-timestamp")
+        .innerText = `Last check: ${this.lastCheck.timestamp}`
+    }
+
+    updateLastCheckAgo() {
+      const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
+      const timeAgo = timeago().format(this.lastCheck.datetime)
+
+      if ((Date.now() - this.lastCheck.datetime) > (settings.status_checks.warn_after * minutes)) {
+        lastCheckTimeAgo.classList.add('too-long')
+        lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='${settings.logs.links.actions}'>Check logs</a>)`
+      } else {
+        lastCheckTimeAgo.innerText = `(${timeAgo})`
+      }
+    }
+
+    updateDetailsHttpStatus() {
+      document
+        .getElementById("last-check-http-status")
+        .innerText = `Last HTTP status code: ${this.lastCheck.httpCode}`
+    }
+
   }
 
-  const updateStatus = (lines) => {
-    const lastCheck = parseLine(lines.at(-1))
-    updateFavicon(lastCheck)
-    updateLastCheck(lastCheck)
-    updateLastCheckTimestamp(lastCheck)
-    updateLastCheckAgo(lastCheck)
-    updateLastCheckHttpStatus(lastCheck)
+  class Timeline {
+    constructor(id = "status-bars", lines = [], limit = settings.status_checks.recent_entries) {
+      this.element = document.getElementById(id)
+      this.limit = limit
+    }
 
-    const firstCheck = parseLine(lines.at(0))
-    updateTimeline(firstCheck)
-  }
+    clear() {
+      this.element.innerHTML = null;
+    }
 
-  const updateTimeline = (firstCheck) => {
-    document.getElementById("before").innerText = timeago().format(firstCheck.datetime)
-  }
+    fillerBars() {
+      return Array.from(Array(this.limit - this.lines.length))
+    }
 
-  const updateFavicon = (lastCheck) => {
-    const favicon = document.getElementById("favicon");
-    favicon.setAttribute("href", `icons/${lastCheck.upOrDn}.png`)
-  }
+    updateTimeline(firstCheck) {
+      document
+        .getElementById("before")
+        .innerText = timeago().format(firstCheck.datetime)
+    }
 
-  const updateLastCheck = (lastCheck) => {
-    const lastCheckStatus = document.getElementById("last-check-status")
-    lastCheckStatus.classList.remove("missing")
-    lastCheckStatus.classList.add(lastCheck.upOrDn)
-    lastCheckStatus.innerText = lastCheck.upOrDown
-  }
-
-  const updateLastCheckTimestamp = (lastCheck) => {
-    document.getElementById("last-check-timestamp").innerText = `Last check: ${lastCheck.timestamp}`
-  }
-
-  const updateLastCheckAgo = (lastCheck) => {
-    const lastCheckTimeAgo = document.getElementById("last-check-time-ago")
-    const timeAgo = timeago().format(lastCheck.datetime)
-
-    if ((Date.now() - lastCheck.datetime) > (20 * 60 * 1000)) {
-      lastCheckTimeAgo.classList.add('too-long')
-      lastCheckTimeAgo.innerHTML = `(${timeAgo} <a href='https://github.com/DOI-OS-ORDA/uptime/actions'>Check logs</a>)`
-    } else {
-      lastCheckTimeAgo.innerText = `(${timeAgo})`
+    update(lines) {
+      this.lines = lines
+      this.clear();
+      this.updateTimeline(lines.at(0))
+      this.fillerBars()
+        .map(x => StatusBar.build("missing", "missing", "no record"))
+        .map(element => this.element.appendChild(element))
+      lines
+        .map(line => StatusBar.build(line.upOrDn, line.upOrDown, line.timestamp))
+        .map(element => this.element.appendChild(element))
+      return lines
     }
   }
 
-  const updateLastCheckHttpStatus = (lastCheck) => {
-    document.getElementById("last-check-http-status").innerText = `Last HTTP status code: ${lastCheck.httpCode}`
+  class StatusBar {
+    static build(upDnClass, upDown, timestamp) {
+      const barDiv = document.createElement("div")
+      barDiv.classList.add('bar')
+      barDiv.classList.add(upDnClass)
+      barDiv.setAttribute('data-tooltip', `${upDown.capitalize()} • ${timestamp.capitalize()}`)
+      barDiv.appendChild(document.createTextNode("|"))
+      return barDiv
+    }
   }
 
-  const refreshStatus = () => fetch('readlog.txt')
+  const loadSettings = () => {
+    const request = new XMLHttpRequest();
+    request.open("GET", "settings.json", false)
+    request.send(null);
+    return JSON.parse(request.responseText);
+  }
+
+  function getProperty(json, path) {
+    var tokens = path.split(".");
+    var obj = json;
+    for (var i = 0; i < tokens.length; i++) {
+      obj = obj[tokens[i]];
+    }
+    return obj;
+  }
+
+  const setupPage = () => {
+    document.querySelectorAll('[data-setting]').forEach(link => link.innerHTML = getProperty(settings, link.getAttribute('data-setting')))
+    document.querySelectorAll('[data-setting-href]').forEach(link => link.href = getProperty(settings, link.getAttribute('data-setting-href')))
+
+    const title = document.getElementsByTagName("title")[0]
+    title.innerHTML = [settings.website.short_name, title.innerHTML].join(" | ")
+  }
+
+  const parseLine = (line) => {
+    const [timeString, httpStatusCode, upOrDn] = line.split(" | ")
+    const datetime = new Date(timeString)
+
+    return {
+      datetime: new Date(timeString),
+      timestamp: datetime.toLocaleString('en-US', settings.date),
+      httpCode: httpStatusCode,
+      upOrDn: upOrDn,
+      upOrDown: upOrDn == "up" ? "up" : "down"
+    }
+  }
+
+  const refreshStatus = () => fetch(settings.logs.paths.recent)
     .then(response => response.text())
     .then(text => text.split('\n'))
     .then(lines => lines.filter(line => line.length > 0))
-    .then(lines => addBars(lines))
-    .then(lines => updateStatus(lines))
+    .then(lines => lines.map(parseLine))
+    .then(lines => (new Timeline).update(lines))
+    .then(lines => (new LastCheck).update(lines.at(-1)))
 
+  settings = loadSettings();
+  setupPage();
   refreshStatus();
-  setInterval(refreshStatus, 1 * 60 * 1000)
+  setInterval(refreshStatus, settings.status_checks.refresh_every * minutes)
 
 </script>
 </body>
